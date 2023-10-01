@@ -1,0 +1,175 @@
+﻿@using WebAnnouncementsApp.Core.ViewModels;
+
+@model AnnouncementsViewModel
+@{
+    ViewData["Title"] = "Ogłoszenia";
+}
+
+<h1>Ogłoszenia</h1>
+
+@using (Html.BeginForm("FilterAllAnnouncements", "Announcement", FormMethod.Post, new { @class = "row gx-3 gy-2 mt-4", id = "filterForm" }))
+{
+    <div class="col-sm-3">
+        @Html.TextBoxFor(x => x.Filters.Title,
+    new { @class = "form-control mb-2" , placeholder = "Tytuł"})
+    </div>
+    <div class="col-sm-3">
+        @Html.DropDownListFor(x => x.Filters.CategoryId,
+    new SelectList(Model.Categories, "Id", "Name"), "-- wybierz kategorię --",
+    new {@class = "form-control mb-2"})
+    </div>
+    <div class="col-sm-3">
+        @Html.DropDownListFor(x => x.Filters.FilterId,
+    new SelectList(Model.Filters.FiltersSort, "Id", "NameOfFilterSort"), "-- wybierz sortowanie --",
+    new {@class = "form-control mb-2"})
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-primary">Szukaj</button>
+    </div>
+}
+
+<div class="mt-4 row" id="FilterAnnouncements">
+    @if (Model.Announcements.Any())
+    {
+        @foreach (var announcement in Model.Announcements)
+        {
+            <div class="mb-4 mt-3 row align-items-center">
+                <div class="col-12" style="background-color: #f8f9fa;">
+                    <a href="@Url.Action("AnnouncementReadOnly","Announcement", new {id = announcement.Id})" style="text-decoration: none; color: #000000;">
+                        <div class="titleAnnouncements">
+                            <h4>
+                                @if (announcement.Title.Length > 100)
+                                {
+                                    @announcement.Title.Substring(0, 100).Insert(100, " [...]")
+                                }
+                                else
+                                {
+                                    @announcement.Title
+                                }
+                            </h4>
+                            <h6>@Model.Categories.Single(x => x.Id == announcement.CategoryId).Name</h6>
+                        </div>
+                        <div class="announcementField">
+                            <div>
+                                @if (announcement.Images.Any())
+                                {
+                                    <img class="titleImage" src="@Url.Action("GetTitleImage", "Announcement", new {id = announcement.Id, titleImageId = announcement.TitleImageId})" />
+                                }
+                                @if (announcement.Description == null)
+                                {
+                                    <text>Brak opisu</text>
+                                }
+                                else if (announcement.Description.Length > 100)
+                                {
+                                    @announcement.Description.Substring(0, 100).Insert(100, " [...]")
+                                }
+                                else
+                                {
+                                    @announcement.Description
+                                }
+                            </div>
+                            <div>
+                                @if (announcement.Price == 0)
+                                {
+                                    <strong>Brak ceny</strong>
+                                }
+                                else
+                                {
+                                    <strong>@announcement.Price zł</strong>
+                                }
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <h4>Brak ogłoszeń!</h4>
+    }
+</div>
+
+@using (Html.BeginForm("FilterAllAnnouncements", "Announcement", FormMethod.Post, new { @class = "pagina", id = "paginaForm" }))
+{
+    <button id="btnPrevPage" class="paginabutton" type="button" onclick="prevPage()">
+        <strong>&#8810</strong>
+    </button>
+
+    @Html.TextBoxFor(x => x.Pagina.PageIndex,
+    new{@class="pageIndex", @readonly="readonly"})
+
+    @Html.HiddenFor(x => x.Pagina.PageSize)
+
+    <button id="btnNextPage" class="paginabutton" type="button" onclick="nextPage()">
+        <strong>&#8811</strong>
+    </button>
+
+    <input type="hidden" id="Pagina_Filters_Title" name="Filters.Title">
+    <input type="hidden" id="Pagina_Filters_CategoryId" name="Filters.CategoryId">
+    <input type="hidden" id="Pagina_Filters_FilterId" name="Filters.FilterId">
+
+    <input type="number" id="IndexOfPage" class="setIndexOfPage" min="1" max="@Model.Pagina.TotalPages" placeholder="Numer strony" style="width: 8rem;">
+}
+
+@section Scripts{
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+            if (!@Html.Raw(Json.Serialize(Model.Pagina.HasPreviousPage))) {
+                document.getElementById("btnPrevPage").style.visibility = "hidden";
+            }
+            if (!@Html.Raw(Json.Serialize(Model.Pagina.HasNextPage))) {
+                document.getElementById("btnNextPage").style.visibility = "hidden";
+            }
+
+        });
+
+        var indexOfPage = document.getElementById("IndexOfPage");
+        indexOfPage.addEventListener("keypress", function (event) {
+
+            if (event.key === "Enter") {
+
+                event.preventDefault();
+                if (parseInt(indexOfPage.value) > @Html.Raw(Json.Serialize(Model.Pagina.TotalPages))) {
+                    indexOfPage.value = (@Html.Raw(Json.Serialize(Model.Pagina.TotalPages).ToString()));
+                }
+                if (parseInt(indexOfPage.value) == 0) {
+                    indexOfPage.value = "1";
+                }
+                document.getElementById("Pagina_PageIndex").value = indexOfPage.value.toString();
+                setValueToPaginaHiddenFilters();
+                document.getElementById("paginaForm").submit();
+            }
+        });
+
+        function setValueToPaginaHiddenFilters() {
+
+            document.getElementById("Pagina_Filters_Title").value = document.getElementById("Filters_Title").value;
+            document.getElementById("Pagina_Filters_CategoryId").value = document.getElementById("Filters_CategoryId").value;
+            document.getElementById("Pagina_Filters_FilterId").value = document.getElementById("Filters_FilterId").value;
+        }
+
+        function prevPage() {
+
+            var pageIndex = parseInt(document.getElementById("Pagina_PageIndex").value);
+            pageIndex -= 1;
+            document.getElementById("Pagina_PageIndex").value = pageIndex.toString();
+            setValueToPaginaHiddenFilters();
+            document.getElementById("paginaForm").submit();
+        }
+
+        function nextPage() {
+
+            var pageIndex = parseInt(document.getElementById("Pagina_PageIndex").value);
+            pageIndex += 1;
+            document.getElementById("Pagina_PageIndex").value = pageIndex.toString();
+            setValueToPaginaHiddenFilters();
+            document.getElementById("paginaForm").submit();
+        }
+
+    </script>
+
+}

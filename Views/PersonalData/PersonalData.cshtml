@@ -1,0 +1,135 @@
+﻿@model WebAnnouncementsApp.Core.ViewModels.PersonalDataViewModel
+@{
+    ViewData["Title"] = "Dane Osobowe";
+}
+
+<h1>Twoje Dane osobowe</h1>
+
+@using (Html.BeginForm("AddEditPersonalData", "PersonalData", FormMethod.Post, new { @enctype = "multipart/form-data" }))
+{
+    <div class="row">
+
+        <div class="col-4 mt-4 mb-4">
+
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(x => x.PersonalData.ApplicationUserId)
+            @Html.HiddenFor(x => x.PersonalData.Id)
+
+            <div class="mt-4">
+                @Html.LabelFor(x => x.PersonalData.FirstName)
+                @Html.TextBoxFor(x => x.PersonalData.FirstName,
+            new { @class = "form-control", autofocus = "autofocus", value = Model.PersonalData.FirstName })
+                @Html.ValidationMessageFor(x => x.PersonalData.FirstName)
+            </div>
+
+            <div class="mt-4">
+                @Html.LabelFor(x => x.PersonalData.LastName)
+                @Html.TextBoxFor(x => x.PersonalData.LastName,
+            new { @class = "form-control", autofocus = "autofocus", value = Model.PersonalData.LastName })
+                @Html.ValidationMessageFor(x => x.PersonalData.LastName)
+            </div>
+
+            <div class="mt-4">
+                @Html.LabelFor(x => x.PersonalData.City)
+                @Html.TextBoxFor(x => x.PersonalData.City,
+            new { @class = "form-control", autofocus = "autofocus", value = Model.PersonalData.City })
+                @Html.ValidationMessageFor(x => x.PersonalData.City)
+            </div>
+
+            <div class="row g-0 mt-4">
+                <div class="col-9">
+                    @Html.LabelFor(x => x.PersonalData.Street)
+                    @Html.TextBoxFor(x => x.PersonalData.Street,
+                new { @class = "form-control", autofocus = "autofocus", value = Model.PersonalData.Street })
+                    @Html.ValidationMessageFor(x => x.PersonalData.Street)
+                </div>
+
+                <div class="col-3">
+                    @Html.LabelFor(x => x.PersonalData.NumberOfStreet)
+                    @Html.TextBoxFor(x => x.PersonalData.NumberOfStreet,
+                new { @class = "form-control", autofocus = "autofocus", value = Model.PersonalData.NumberOfStreet })
+                    @Html.ValidationMessageFor(x => x.PersonalData.NumberOfStreet)
+                </div>
+            </div>
+
+            <div class="col-3 mt-4">
+                @Html.LabelFor(x => x.PersonalData.PostalCode)
+                @Html.TextBoxFor(x => x.PersonalData.PostalCode,
+            new { @class = "form-control", autofocus = "autofocus",
+            pattern="[0-9]{2}[-][0-9]{3}", maxlength="6", value = Model.PersonalData.PostalCode })
+                @Html.ValidationMessageFor(x => x.PersonalData.PostalCode)
+            </div>
+
+            <button type="submit" class="btn btn-primary mt-4">Zapisz dane</button>
+
+        </div>
+
+        <div class="mt-4 col-3 offset-2">
+            @Html.Label("Numery telefonów:")
+
+            <div id="phoneNumbers">
+                @if (Model.PersonalData.PhoneNumbers.Any())
+                {
+                    @foreach (var phoneNumber in Model.PersonalData.PhoneNumbers)
+                    {
+                        <div class="input-group mt-2">
+                            <input type="text" class ="form-control" autofocus="autofocus" value="@phoneNumber.Number" name="phoneNumbersDoNotDelete" readonly="readonly">
+                            <button class="btn btn-danger" onclick="deleteThisPhoneNumber(this)">Usuń</button>
+                        </div>
+                    }
+                }
+            </div>
+
+            @if(Model.NewPhoneNumbers != null)
+            {
+                @if (Model.NewPhoneNumbers.Any())
+                {
+                    @foreach (var newPhoneNumber in Model.NewPhoneNumbers)
+                    {
+                        <div class="input-group mt-2">
+                            <input type="text" class="form-control" id="addNewPhoneNumber" autofocus="autofocus" value="@newPhoneNumber" readonly="readonly">
+                            <button class="btn btn-danger" onclick="deleteThisPhoneNumber(this)">Usuń</button>
+                        </div>
+                    }
+                }
+            }
+
+            <div class="input-group mt-2">
+                <input type="text" id="addNewPhoneNumber" autofocus="autofocus">
+                <button class="btn btn-primary" onclick="addPhoneNumber()" type="button">Dodaj</button>
+            </div>
+        </div>
+
+    </div>
+}
+
+
+@section Scripts{
+
+    <script type="text/javascript">
+
+        function addPhoneNumber() {
+
+            var inputNewPhoneNumber = document.getElementById("addNewPhoneNumber")
+            var phoneNumber = inputNewPhoneNumber.value;
+            inputNewPhoneNumber.value = "";
+            var newPhoneNumber =
+                '<div class="input-group mt-2">' +
+                '<input type="text" class ="form-control" autofocus="autofocus" value= ' + phoneNumber + ' name="newPhoneNumbers" readonly="readonly">' +
+                '<button class="btn btn-danger" onclick="deleteThisPhoneNumber(this)">Usuń</button>' +
+                '</div>';
+            $('#phoneNumbers').append(newPhoneNumber);
+        }
+
+        function deleteThisPhoneNumber(btn) {
+
+            if (!confirm("Czy na pewno chcesz usunąć dany numer telefonu?"))
+                return;
+
+            var row = btn.parentNode;
+            row.parentNode.removeChild(row);
+        }
+
+    </script>
+
+}

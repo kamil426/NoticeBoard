@@ -1,0 +1,170 @@
+﻿@model WebAnnouncementsApp.Core.ViewModels.AnnouncementViewModel
+@{
+    ViewData["Title"] = "Dodaj ogłoszenie";
+}
+
+<h1>Dodaj ogłoszenie</h1>
+
+@using (Html.BeginForm("Announcement", "Announcement", FormMethod.Post))
+{
+    @Html.HiddenFor(x => x.Announcement.ApplicationUserId)
+    @Html.HiddenFor(x => x.Announcement.DateOfCreate)
+    @Html.HiddenFor(x => x.Announcement.Id)
+    @Html.AntiForgeryToken()
+
+    <div class="col-6">
+        <div class="mt-4">
+            @Html.LabelFor(x => x.Announcement.Title)
+            @Html.TextBoxFor(x => x.Announcement.Title,
+        new { @class = "form-control", autofocus = "autofocus", value = Model.Announcement.Title })
+            @Html.ValidationMessageFor(x => x.Announcement.Title)
+        </div>
+
+        <div class="mt-4">
+            @Html.LabelFor(x => x.Announcement.CategoryId)
+            @Html.DropDownListFor(x => x.Announcement.CategoryId,
+        new SelectList(Model.Categories, "Id", "Name"),
+        "-- wybierz kategorię --", new {@class = "form-control"})
+            @Html.ValidationMessageFor(x => x.Announcement.CategoryId)
+        </div>
+
+        <div class="mt-4">
+            @Html.LabelFor(x => x.Announcement.Price) (zł)
+            @Html.TextBoxFor(x => x.Announcement.Price,
+        new { @class = "form-control", autofocus = "autofocus", value = Model.Announcement.Price, inputmode="numeric", step=".01"})
+            @Html.ValidationMessageFor(x => x.Announcement.Price)
+        </div>
+
+        <div class="mt-4">
+            @Html.LabelFor(x => x.Announcement.Description)
+            @Html.TextAreaFor(x => x.Announcement.Description, 6, 6,
+        new { @class = "form-control", autofocus = "autofocus", value = Model.Announcement.Description })
+            @Html.ValidationMessageFor(x => x.Announcement.Description)
+        </div>
+
+        <div class="mt-4">
+            <label for="addImages">Zdjęcia (Uwaga, maksymalny rozmiar jednego zdjęcia, to 2,8 MB!)</label>
+            <input class="form-control" type="file" id="addImages" multiple="multiple" onchange="readURL(this)" accept="image/jpeg, image/png" />
+        </div>
+    </div>
+
+    <input type="hidden" name="idTitleImage" id="titleImageId" value="@Model.Announcement.TitleImageId">
+
+    <div class="photos mt-4" id="announcementPhotos">
+        @if (Model.Announcement.Images.Any())
+        {
+            foreach (var photo in Model.Announcement.Images)
+            {
+                <div style="position: relative" onmousemove="displayButtonSetTitleImage(this)" onmouseout="hideButtonSetTitleImage(this)">
+                    <button class="xButton" onclick="deletePhoto(this)">&times</button>
+                    <img class="image" src="@Url.Action("GetImage", "Announcement", new {id = photo.Id})" id="@photo.Id" />
+                    <button class="imageTitleButton" type="button" onclick="setTitleImageId(this)" style="display:none"></button>
+                    <input type="hidden" name="oldImagesDoNotDelete" value="@photo.Id">
+                </div>
+            }
+        }
+
+        @if (Model.NewImages != null)
+        {
+            if (Model.NewImages.Any())
+            {
+                foreach (var newImage in Model.NewImages)
+                {
+                    <div style="position: relative" onmousemove="displayButtonSetTitleImage(this)" onmouseout="hideButtonSetTitleImage(this)">
+                        <button class="xButton" onclick="deletePhoto(this)">&times</button>
+                        <img class="image" src="@newImage" />
+                        <button class="imageTitleButton" type="button" onclick="setTitleImageId(this)" style="display:none"></button>
+                        <input name="newImages" value="@newImage" type="hidden" />
+                    </div>
+                }
+            }
+        }
+    </div>
+
+    <button class="btn btn-primary mt-4" type="submit">Zapisz</button>
+}
+
+@section Scripts{
+
+    <script type="text/javascript">
+
+        var titleImage;
+        var borderStyleTitleImage = "0.4rem solid #2355A5";
+
+        $(document).ready(function () {
+
+            var idImage = document.getElementById("titleImageId").value;
+            if (typeof (idImage) != "undefined" && idImage != -1) {
+                var div = document.getElementById("announcementPhotos").children[idImage];
+                titleImage = div.children[1];
+                titleImage.style.border = borderStyleTitleImage;
+            }
+        });
+
+        function readURL(input) {
+
+            if (input.files && input.files[0]) {
+
+                for (var i = 0; i < input.files.length; i++) {
+
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        var newImage = '<div style="position: relative" onmousemove="displayButtonSetTitleImage(this)" onmouseout="hideButtonSetTitleImage(this)">' +
+                            '<button class="xButton" onclick="deletePhoto(this)">&times</button>' +
+                            '<img class="image" src ="' + e.target.result + '"/>' +
+                            '<button class="imageTitleButton" type="button" onclick="setTitleImageId(this)" style="display:none"></button>' +
+                            '<input name="newImages" value="' + e.target.result + '" type="hidden" />' +
+                            '</div>';
+                        $('#announcementPhotos').append(newImage);
+                    };
+                    reader.readAsDataURL(input.files[i]);
+                }
+            }
+        }
+
+        function deletePhoto(btn) {
+
+            var div = btn.parentNode;
+            if (titleImage == div.children[1]) {
+                document.getElementById('titleImageId').value = -1;
+                titleImage = undefined;
+            }
+            div.parentNode.removeChild(div);
+        }
+
+        function displayButtonSetTitleImage(div) {
+
+            var btn = div.children[2];
+            btn.style.display = "block";
+        }
+
+        function hideButtonSetTitleImage(div) {
+
+            var btn = div.children[2];
+            btn.style.display = "none";
+        }
+
+        function setTitleImageId(btn) {
+
+            var div = btn.parentElement;
+
+            var indexOfTitleImage = 0;
+            for (; div.parentElement.children[indexOfTitleImage] != div; indexOfTitleImage++) { }
+
+            if (titleImage == div.children[1]) {
+                document.getElementById('titleImageId').value = -1;
+                div.children[1].style = "none";
+                titleImage = undefined;
+            }
+            else {
+                document.getElementById('titleImageId').value = indexOfTitleImage;
+                div.children[1].style.border = borderStyleTitleImage;
+                if (typeof (titleImage) != "undefined") {
+                    titleImage.style.border = "none";
+                }
+                titleImage = div.children[1];
+            }
+        }
+
+    </script>
+}

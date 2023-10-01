@@ -1,0 +1,91 @@
+﻿@using WebAnnouncementsApp.Core.ViewModels;
+
+@model AnnouncementReadOnlyViewModel
+@{
+    ViewData["Title"] = "Ogłoszenie";
+}
+
+<h2 class="mt-5">@Model.Announcement.Title</h2>
+
+<div class="mt-5 col-12">
+    <div>
+        @Model.Announcement.Description
+    </div>
+
+    @if(Model.Announcement.Price != 0)
+    {
+        <h3 class="mt-5">
+            Cena: @Model.Announcement.Price zł
+        </h3>
+    }
+
+    <div class="photos mt-5">
+        @if (Model.Announcement.Images.Any())
+        {
+            @foreach (var photo in Model.Announcement.Images)
+            {
+                <img class="image" src="@Url.Action("GetImage", "Announcement", new {id = photo.Id})" id="@photo.Id"
+                style="cursor: pointer;" onclick="makeImageBigger(this)"/>
+            }
+        }
+    </div>
+
+    <div class="mt-5">
+        <text>Dane kontaktowe:</text><br />
+        @Model.PersonalData.FirstName @Model.PersonalData.LastName<br />
+        @Model.PersonalData.Street @Model.PersonalData.NumberOfStreet @Model.PersonalData.PostalCode<br />
+        @Model.PersonalData.City<br /> 
+        
+        <div class="mt-2">
+            @if (Model.PersonalData.PhoneNumbers.Any())
+            {
+                @if (Model.PersonalData.PhoneNumbers.Count == 1)
+                {
+                    <text>Numer telefonu:</text>
+
+                    <br />
+                }
+                else
+                {
+                    <text>Numery telefonów:</text>
+
+                    <br />
+                }
+                @foreach (var phoneNumber in Model.PersonalData.PhoneNumbers)
+                {
+                    @phoneNumber.Number <br />
+                }
+            }
+        </div>
+    </div>
+</div>
+
+<div id="overlay"></div>
+
+@section Scripts{
+
+    <script type="text/javascript">
+
+        var isImgOnFullScreen = false;
+
+        function makeImageBigger(img){
+
+            if(!isImgOnFullScreen){
+                document.getElementsByTagName("footer")[0].style.position = "unset";
+                img.className = "imgOnFullScreen";
+                document.getElementById("overlay").style.display = "inline";
+                isImgOnFullScreen = true;
+            }
+            else{
+                document.getElementsByTagName("footer")[0].style.position = "absolute";
+                img.className = "image";
+                document.getElementById("overlay").style.display = "none";
+                isImgOnFullScreen = false;
+            }
+        }
+
+    </script>
+
+}
+
+
