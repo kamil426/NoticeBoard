@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using WebAnnouncementsApp.Persistence;
+using NoticeBoard.Persistence;
 
 #nullable disable
 
-namespace WebAnnouncementsApp.Migrations
+namespace NoticeBoard.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     [Migration("20230827145553_ChangeForeigKeyInPhoneNumberFromPersonalDataToApplicationUser")]

@@ -1,7 +1,7 @@
-﻿using WebAnnouncementsApp.Core.Models;
-using WebAnnouncementsApp.Core.Models.Domains;
+﻿using NoticeBoard.Core.Models;
+using NoticeBoard.Core.Models.Domains;
 
-namespace WebAnnouncementsApp.Core.ViewModels
+namespace NoticeBoard.Core.ViewModels
 {
     public class AnnouncementsViewModel
     {

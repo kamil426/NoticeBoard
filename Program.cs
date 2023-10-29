@@ -1,12 +1,16 @@
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using WebAnnouncementsApp.Core.Service;
-using WebAnnouncementsApp.Core;
-using WebAnnouncementsApp.Persistence;
-using WebAnnouncementsApp.Persistence.Services;
+using NoticeBoard.Core.Service;
+using NoticeBoard.Core;
+using NoticeBoard.Persistence;
+using NoticeBoard.Persistence.Services;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.AspNetCore.Mvc;
+using NoticeBoard.Core.Models;
+using Microsoft.AspNetCore.Diagnostics;
 
-namespace WebAnnouncementsApp
+namespace NoticeBoard
 {
     public class Program
     {
@@ -31,7 +35,17 @@ namespace WebAnnouncementsApp
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             builder.Services.AddControllersWithViews();
 
+            builder.Services.Configure<FormOptions>(o =>
+            {
+                // o.ValueLengthLimit = 16777216;
+            });
+
             var app = builder.Build();
+
+            //app.UseStatusCodePages(async statusCodeContext => await Results.Problem(
+            //    detail: "¯¹danie przes³ane do serwera zawiera b³êdy",
+            //    statusCode: statusCodeContext.HttpContext.Response.StatusCode)
+            //     .ExecuteAsync(statusCodeContext.HttpContext));
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
@@ -46,6 +60,7 @@ namespace WebAnnouncementsApp
             }
 
             app.UseHttpsRedirection();
+
             app.UseStaticFiles();
 
             app.UseRouting();

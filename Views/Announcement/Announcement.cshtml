@@ -1,4 +1,4 @@
-﻿@model WebAnnouncementsApp.Core.ViewModels.AnnouncementViewModel
+﻿@model NoticeBoard.Core.ViewModels.AnnouncementViewModel
 @{
     ViewData["Title"] = "Dodaj ogłoszenie";
 }
@@ -43,7 +43,7 @@
         </div>
 
         <div class="mt-4">
-            <label for="addImages">Zdjęcia (Uwaga, maksymalny rozmiar jednego zdjęcia, to 2,8 MB!)</label>
+            <label for="addImages">Zdjęcia <u>(Uwaga, maksymalny rozmiar jednego zdjęcia, to 2,8 MB!)</u></label>
             <input class="form-control" type="file" id="addImages" multiple="multiple" onchange="readURL(this)" accept="image/jpeg, image/png" />
         </div>
     </div>
@@ -56,10 +56,12 @@
             foreach (var photo in Model.Announcement.Images)
             {
                 <div style="position: relative" onmousemove="displayButtonSetTitleImage(this)" onmouseout="hideButtonSetTitleImage(this)">
+                    <button type="button" style="display:none" class="previewImage" onclick="prevImage(this)">&#11207</button>
                     <button class="xButton" onclick="deletePhoto(this)">&times</button>
-                    <img class="image" src="@Url.Action("GetImage", "Announcement", new {id = photo.Id})" id="@photo.Id" />
+                    <img class="image" src="@Url.Action("GetImage", "Announcement", new {id = photo.Id})" id="@photo.Id" style="cursor: pointer;" onclick="makeImageBigger(this)" />
                     <button class="imageTitleButton" type="button" onclick="setTitleImageId(this)" style="display:none"></button>
                     <input type="hidden" name="oldImagesDoNotDelete" value="@photo.Id">
+                    <button type="button" style="display:none" class="nextImage" onclick="nextImage(this)">&#11208</button>
                 </div>
             }
         }
@@ -71,10 +73,12 @@
                 foreach (var newImage in Model.NewImages)
                 {
                     <div style="position: relative" onmousemove="displayButtonSetTitleImage(this)" onmouseout="hideButtonSetTitleImage(this)">
+                        <button type="button" style="display:none" class="previewImage" onclick="prevImage(this)">&#11207</button>
                         <button class="xButton" onclick="deletePhoto(this)">&times</button>
-                        <img class="image" src="@newImage" />
+                        <img class="image" src="@newImage" style="cursor: pointer;" onclick="makeImageBigger(this)" />
                         <button class="imageTitleButton" type="button" onclick="setTitleImageId(this)" style="display:none"></button>
                         <input name="newImages" value="@newImage" type="hidden" />
+                        <button type="button" style="display:none" class="nextImage" onclick="nextImage(this)">&#11208</button>
                     </div>
                 }
             }
@@ -82,6 +86,8 @@
     </div>
 
     <button class="btn btn-primary mt-4" type="submit">Zapisz</button>
+
+    <div id="overlay"></div>
 }
 
 @section Scripts{
@@ -89,14 +95,21 @@
     <script type="text/javascript">
 
         var titleImage;
-        var borderStyleTitleImage = "0.4rem solid #2355A5";
+        var isImgOnFullScreen = false;
+
+        const borderStyleTitleImage = "0.4rem solid #2355A5";
+        const indexOfPrevievImgButtonInPhoto = 0;
+        const indexOfCloseButtonInPhoto = 1;
+        const indexOfImgInPhoto = 2;
+        const indexOfTitleImgButtonInPhoto = 3;
+        const indexOfNextImgButtonInPhoto = 5;
 
         $(document).ready(function () {
 
             var idImage = document.getElementById("titleImageId").value;
             if (typeof (idImage) != "undefined" && idImage != -1) {
                 var div = document.getElementById("announcementPhotos").children[idImage];
-                titleImage = div.children[1];
+                titleImage = div.children[indexOfImgInPhoto];
                 titleImage.style.border = borderStyleTitleImage;
             }
         });
@@ -110,11 +123,19 @@
                     var reader = new FileReader();
                     reader.onload = function (e) {
                         var newImage = '<div style="position: relative" onmousemove="displayButtonSetTitleImage(this)" onmouseout="hideButtonSetTitleImage(this)">' +
+                            '<button type="button" style="display:none" class="previewImage" onclick="prevImage(this)">&#11207</button>' +
                             '<button class="xButton" onclick="deletePhoto(this)">&times</button>' +
-                            '<img class="image" src ="' + e.target.result + '"/>' +
+                            '<img class="image" src ="' + e.target.result + '" style="cursor: pointer;" onclick="makeImageBigger(this)"/>' +
                             '<button class="imageTitleButton" type="button" onclick="setTitleImageId(this)" style="display:none"></button>' +
                             '<input name="newImages" value="' + e.target.result + '" type="hidden" />' +
+                            '<button type="button" style="display:none" class="nextImage" onclick="nextImage(this)">&#11208</button>' +
                             '</div>';
+                        if (new Blob([newImage]).size > 2936832){
+
+                            document.getElementById("addImages").value = "";
+                            alert("Dodane zdjęcie ma zbyt duży rozmiar. Zmniejsz jego rozdzielczość lub dodaj inne");
+                            return;
+                        }
                         $('#announcementPhotos').append(newImage);
                     };
                     reader.readAsDataURL(input.files[i]);
@@ -125,7 +146,7 @@
         function deletePhoto(btn) {
 
             var div = btn.parentNode;
-            if (titleImage == div.children[1]) {
+            if (titleImage == div.children[indexOfImgInPhoto]) {
                 document.getElementById('titleImageId').value = -1;
                 titleImage = undefined;
             }
@@ -134,13 +155,15 @@
 
         function displayButtonSetTitleImage(div) {
 
-            var btn = div.children[2];
-            btn.style.display = "block";
+            if (div.children[indexOfImgInPhoto].className != "imgOnFullScreen"){
+                var btn = div.children[indexOfTitleImgButtonInPhoto];
+                btn.style.display = "block";
+            }
         }
 
         function hideButtonSetTitleImage(div) {
 
-            var btn = div.children[2];
+            var btn = div.children[indexOfTitleImgButtonInPhoto];
             btn.style.display = "none";
         }
 
@@ -151,18 +174,117 @@
             var indexOfTitleImage = 0;
             for (; div.parentElement.children[indexOfTitleImage] != div; indexOfTitleImage++) { }
 
-            if (titleImage == div.children[1]) {
+            if (titleImage == div.children[indexOfImgInPhoto]) {
                 document.getElementById('titleImageId').value = -1;
-                div.children[1].style = "none";
+                div.children[indexOfImgInPhoto].style = "none";
                 titleImage = undefined;
             }
             else {
                 document.getElementById('titleImageId').value = indexOfTitleImage;
-                div.children[1].style.border = borderStyleTitleImage;
+                div.children[indexOfImgInPhoto].style.border = borderStyleTitleImage;
                 if (typeof (titleImage) != "undefined") {
                     titleImage.style.border = "none";
                 }
-                titleImage = div.children[1];
+                titleImage = div.children[indexOfImgInPhoto];
+            }
+        }
+
+        function makeImageBigger(img) {
+
+            var photos = img.parentNode.parentNode.children;
+            var photo = img.parentNode.children;
+            var indexOfImg = Array.from(photos).indexOf(img.parentNode);
+
+            if (!isImgOnFullScreen) {
+                document.getElementsByTagName("footer")[0].style.position = "unset";
+                
+                prepareImgAndCloseButtonOnFullScreen(photo);
+
+                document.getElementById("overlay").style.display = "inline";
+
+                isImgOnFullScreen = true
+
+                setButtonsNextImgAndPrevImgVisible(indexOfImg, photo, photos)
+            }
+            else {
+                document.getElementsByTagName("footer")[0].style.position = "absolute";
+                img.className = "image";
+                document.getElementById("overlay").style.display = "none";
+                photo[indexOfCloseButtonInPhoto].style.display = "inline-flex";
+                if (typeof (titleImage) != "undefined"){
+
+                    titleImage.style.border = borderStyleTitleImage;
+                }
+
+                isImgOnFullScreen = false;
+
+                if (indexOfImg > 0) {
+                    photo[indexOfPrevievImgButtonInPhoto].style.display = "none";
+                }
+                if (indexOfImg < photos.length - 1) {
+                    photo[indexOfNextImgButtonInPhoto].style.display = "none";
+                }
+            }
+        }
+
+        function prevImage(btn) {
+
+            var photos = btn.parentNode.parentNode.children;
+            var photo = btn.parentNode.children;
+            var indexOfImg = Array.from(photos).indexOf(btn.parentNode) - 1;
+
+            setDefaultPropertiesOfImgAfterClickNextImgOrPrevImg(photo);
+
+            var prevPhoto = photos[indexOfImg].children;
+
+            prepareImgAndCloseButtonOnFullScreen(prevPhoto);
+
+            setButtonsNextImgAndPrevImgVisible(indexOfImg, prevPhoto, photos);
+        }
+
+        function nextImage(btn) {
+
+            var photos = btn.parentNode.parentNode.children;
+            var photo = btn.parentNode.children;
+            var indexOfImg = Array.from(photos).indexOf(btn.parentNode) + 1;
+
+            setDefaultPropertiesOfImgAfterClickNextImgOrPrevImg(photo);
+
+            var nextPhoto = photos[indexOfImg].children;
+
+            prepareImgAndCloseButtonOnFullScreen(nextPhoto);
+
+            setButtonsNextImgAndPrevImgVisible(indexOfImg, nextPhoto, photos);
+        }
+
+        function setButtonsNextImgAndPrevImgVisible(indexOfImg, photo, photos) {
+
+            if (indexOfImg > 0) {
+                photo[indexOfPrevievImgButtonInPhoto].style.display = "block";
+            }
+            if (indexOfImg < photos.length - 1) {
+                photo[indexOfNextImgButtonInPhoto].style.display = "block";
+            }
+        }
+
+        function prepareImgAndCloseButtonOnFullScreen(photo){
+
+            if (photo[indexOfImgInPhoto].style.border != "none") {
+                photo[indexOfImgInPhoto].style.border = "none";
+            }
+            photo[indexOfImgInPhoto].className = "imgOnFullScreen";
+            photo[indexOfCloseButtonInPhoto].style.display = "none";
+        }
+
+        function setDefaultPropertiesOfImgAfterClickNextImgOrPrevImg(photo){
+
+            photo[indexOfPrevievImgButtonInPhoto].style.display = "none";
+            photo[indexOfImgInPhoto].className = "image";
+            photo[indexOfNextImgButtonInPhoto].style.display = "none";
+            photo[indexOfCloseButtonInPhoto].style.display = "inline-flex";
+            if (photo[indexOfImgInPhoto] == titleImage) {
+
+                titleImage.style.border = borderStyleTitleImage;
             }
         }
 

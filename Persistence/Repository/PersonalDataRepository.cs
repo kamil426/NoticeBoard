@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using WebAnnouncementsApp.Core;
-using WebAnnouncementsApp.Core.Models.Domains;
-using WebAnnouncementsApp.Core.Repository;
+using NoticeBoard.Core;
+using NoticeBoard.Core.Models.Domains;
+using NoticeBoard.Core.Repository;
 
-namespace WebAnnouncementsApp.Persistence.Repository
+namespace NoticeBoard.Persistence.Repository
 {
     public class PersonalDataRepository: IPersonalDataRepository
     {

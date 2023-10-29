@@ -1,4 +1,4 @@
-namespace WebAnnouncementsApp.Core.ViewModels
+namespace NoticeBoard.Core.ViewModels
 {
     public class ErrorViewModel
     {

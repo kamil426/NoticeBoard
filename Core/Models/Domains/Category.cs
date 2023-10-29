@@ -1,4 +1,4 @@
-﻿namespace WebAnnouncementsApp.Core.Models.Domains
+﻿namespace NoticeBoard.Core.Models.Domains
 {
     public class Category
     {

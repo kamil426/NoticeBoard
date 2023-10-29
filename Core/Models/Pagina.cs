@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Drawing.Printing;
-using WebAnnouncementsApp.Core.Models.Domains;
+using NoticeBoard.Core.Models.Domains;
 
-namespace WebAnnouncementsApp.Core.Models
+namespace NoticeBoard.Core.Models
 {
     public class Pagina
     {

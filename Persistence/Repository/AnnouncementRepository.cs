@@ -2,12 +2,12 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Drawing.Printing;
-using WebAnnouncementsApp.Core;
-using WebAnnouncementsApp.Core.Models;
-using WebAnnouncementsApp.Core.Models.Domains;
-using WebAnnouncementsApp.Core.Repository;
+using NoticeBoard.Core;
+using NoticeBoard.Core.Models;
+using NoticeBoard.Core.Models.Domains;
+using NoticeBoard.Core.Repository;
 
-namespace WebAnnouncementsApp.Persistence.Repository
+namespace NoticeBoard.Persistence.Repository
 {
     public class AnnouncementRepository: IAnnouncementRepository
     {

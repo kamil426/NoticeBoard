@@ -1,18 +1,19 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WebAnnouncementsApp.Core.Models.Domains;
-using WebAnnouncementsApp.Persistence.Repository;
-using WebAnnouncementsApp.Persistence;
-using WebAnnouncementsApp.Core.ViewModels;
-using WebAnnouncementsApp.Persistence.Extensions;
+using NoticeBoard.Core.Models.Domains;
+using NoticeBoard.Persistence.Repository;
+using NoticeBoard.Persistence;
+using NoticeBoard.Core.ViewModels;
+using NoticeBoard.Persistence.Extensions;
 using System.Collections.ObjectModel;
 using Microsoft.AspNetCore.Http;
 using System.Net;
-using WebAnnouncementsApp.Core.Models;
+using NoticeBoard.Core.Models;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using WebAnnouncementsApp.Core.Service;
+using NoticeBoard.Core.Service;
+using System.Net.Http;
 
-namespace WebAnnouncementsApp.Controllers
+namespace NoticeBoard.Controllers
 {
     [Authorize]
     public class AnnouncementController : Controller

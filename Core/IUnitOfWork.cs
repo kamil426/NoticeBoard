@@ -1,7 +1,7 @@
-﻿using WebAnnouncementsApp.Core.Repository;
-using WebAnnouncementsApp.Persistence.Repository;
+﻿using NoticeBoard.Core.Repository;
+using NoticeBoard.Persistence.Repository;
 
-namespace WebAnnouncementsApp.Core
+namespace NoticeBoard.Core
 {
     public interface IUnitOfWork
     {

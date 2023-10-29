@@ -4,7 +4,8 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>aspnet-WebAnnouncementsApp-aa952a7a-ecbb-46f0-896c-c15ce4285eb1</UserSecretsId>
+    <UserSecretsId>aspnet-NoticeBoard-aa952a7a-ecbb-46f0-896c-c15ce4285eb1</UserSecretsId>
+    <StartupObject></StartupObject>
   </PropertyGroup>
 
   <ItemGroup>

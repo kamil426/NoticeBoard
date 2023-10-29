@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace WebAnnouncementsApp.Core.Models.Domains
+namespace NoticeBoard.Core.Models.Domains
 {
     public class ApplicationUser : IdentityUser
     {

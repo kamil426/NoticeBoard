@@ -1,8 +1,8 @@
-﻿using WebAnnouncementsApp.Core;
-using WebAnnouncementsApp.Core.Models.Domains;
-using WebAnnouncementsApp.Core.Service;
+﻿using NoticeBoard.Core;
+using NoticeBoard.Core.Models.Domains;
+using NoticeBoard.Core.Service;
 
-namespace WebAnnouncementsApp.Persistence.Services
+namespace NoticeBoard.Persistence.Services
 {
     public class CategoryService : ICategoryService
     {

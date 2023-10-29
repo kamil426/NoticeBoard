@@ -1,8 +1,8 @@
-﻿using WebAnnouncementsApp.Core;
-using WebAnnouncementsApp.Core.Repository;
-using WebAnnouncementsApp.Persistence.Repository;
+﻿using NoticeBoard.Core;
+using NoticeBoard.Core.Repository;
+using NoticeBoard.Persistence.Repository;
 
-namespace WebAnnouncementsApp.Persistence
+namespace NoticeBoard.Persistence
 {
     public class UnitOfWork : IUnitOfWork
     {

@@ -1,6 +1,6 @@
-﻿using WebAnnouncementsApp.Core.Models.Domains;
+﻿using NoticeBoard.Core.Models.Domains;
 
-namespace WebAnnouncementsApp.Core.Repository
+namespace NoticeBoard.Core.Repository
 {
     public interface IAnnouncementRepository
     {

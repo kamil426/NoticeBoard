@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace WebAnnouncementsApp.Migrations
+namespace NoticeBoard.Migrations
 {
     public partial class ChangeForeigKeyInPhoneNumberFromPersonalDataToApplicationUser : Migration
     {

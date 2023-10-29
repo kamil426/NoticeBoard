@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 
-namespace WebAnnouncementsApp.Persistence.Extensions
+namespace NoticeBoard.Persistence.Extensions
 {
     public static class ClaimsPrincipalExtensions
     {

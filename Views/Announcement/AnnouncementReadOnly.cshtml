@@ -1,4 +1,4 @@
-﻿@using WebAnnouncementsApp.Core.ViewModels;
+﻿@using NoticeBoard.Core.ViewModels;
 
 @model AnnouncementReadOnlyViewModel
 @{
@@ -12,7 +12,7 @@
         @Model.Announcement.Description
     </div>
 
-    @if(Model.Announcement.Price != 0)
+    @if (Model.Announcement.Price != 0)
     {
         <h3 class="mt-5">
             Cena: @Model.Announcement.Price zł
@@ -24,8 +24,12 @@
         {
             @foreach (var photo in Model.Announcement.Images)
             {
-                <img class="image" src="@Url.Action("GetImage", "Announcement", new {id = photo.Id})" id="@photo.Id"
-                style="cursor: pointer;" onclick="makeImageBigger(this)"/>
+                <div style="position:relative">
+                    <button type="button" style="display:none" class="previewImage" onclick="prevImage(this)">&#11207</button>
+                    <img class="image" src="@Url.Action("GetImage", "Announcement", new {id = photo.Id})" id="@photo.Id"
+                         style="cursor: pointer;" onclick="makeImageBigger(this)" />
+                    <button type="button" style="display:none" class="nextImage" onclick="nextImage(this)">&#11208</button>
+                </div>
             }
         }
     </div>
@@ -34,8 +38,8 @@
         <text>Dane kontaktowe:</text><br />
         @Model.PersonalData.FirstName @Model.PersonalData.LastName<br />
         @Model.PersonalData.Street @Model.PersonalData.NumberOfStreet @Model.PersonalData.PostalCode<br />
-        @Model.PersonalData.City<br /> 
-        
+        @Model.PersonalData.City<br />
+
         <div class="mt-2">
             @if (Model.PersonalData.PhoneNumbers.Any())
             {
@@ -67,21 +71,83 @@
     <script type="text/javascript">
 
         var isImgOnFullScreen = false;
+        const indexOfPrevievImgButtonInPhoto = 0;
+        const indexOfImgInPhoto = 1;
+        const indexOfNextImgButtonInPhoto = 2;
 
-        function makeImageBigger(img){
+        function makeImageBigger(img) {
 
-            if(!isImgOnFullScreen){
+            var photos = img.parentNode.parentNode.children;
+            var photo = img.parentNode.children;
+            var indexOfImg = Array.from(photos).indexOf(img.parentNode);
+
+            if (!isImgOnFullScreen) {
                 document.getElementsByTagName("footer")[0].style.position = "unset";
                 img.className = "imgOnFullScreen";
                 document.getElementById("overlay").style.display = "inline";
-                isImgOnFullScreen = true;
-            }
-            else{
+                isImgOnFullScreen = true
+
+                makeButtonsPrevImageAndNextImageVisible(photo, indexOfImg, photos);
+                }
+            
+            else {
                 document.getElementsByTagName("footer")[0].style.position = "absolute";
                 img.className = "image";
                 document.getElementById("overlay").style.display = "none";
                 isImgOnFullScreen = false;
+
+                if (indexOfImg > 0) {
+                    photo[indexOfPrevievImgButtonInPhoto].style.display = "none";
+                }
+                if (indexOfImg < photos.length - 1) {
+                    photo[indexOfNextImgButtonInPhoto].style.display = "none";
+                }
             }
+        }
+
+        function prevImage(btn) {
+
+            var photos = btn.parentNode.parentNode.children;
+            var photo = btn.parentNode.children;
+            var indexOfImg = Array.from(photos).indexOf(btn.parentNode) - 1;
+
+            setDefaultPropertiesImgAndButtons(photo);
+
+            var prevPhoto = photos[indexOfImg].children;
+            prevPhoto[indexOfImgInPhoto].className = "imgOnFullScreen";
+
+            makeButtonsPrevImageAndNextImageVisible(prevPhoto, indexOfImg, photos);
+        }
+
+        function nextImage(btn) {
+
+            var photos = btn.parentNode.parentNode.children;
+            var photo = btn.parentNode.children;
+            var indexOfImg = Array.from(photos).indexOf(btn.parentNode) + 1;
+
+            setDefaultPropertiesImgAndButtons(photo);
+
+            var nextPhoto = photos[indexOfImg].children;
+            nextPhoto[indexOfImgInPhoto].className = "imgOnFullScreen";
+
+            makeButtonsPrevImageAndNextImageVisible(nextPhoto, indexOfImg, photos);
+        }
+
+        function makeButtonsPrevImageAndNextImageVisible(photo, indexOfImg, photos) {
+
+            if (indexOfImg > 0) {
+                photo[indexOfPrevievImgButtonInPhoto].style.display = "block";
+            }
+            if (indexOfImg < photos.length - 1) {
+                photo[indexOfNextImgButtonInPhoto].style.display = "block";
+            }
+        }
+
+        function setDefaultPropertiesImgAndButtons(photo) {
+
+            photo[indexOfPrevievImgButtonInPhoto].style.display = "none";
+            photo[indexOfImgInPhoto].className = "image";
+            photo[indexOfNextImgButtonInPhoto].style.display = "none";
         }
 
     </script>

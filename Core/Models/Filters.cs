@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Xml.Linq;
 
-namespace WebAnnouncementsApp.Core.Models
+namespace NoticeBoard.Core.Models
 {
     public class Filters
     {

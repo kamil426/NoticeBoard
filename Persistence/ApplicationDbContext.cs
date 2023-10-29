@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using WebAnnouncementsApp.Core;
-using WebAnnouncementsApp.Core.Models.Domains;
+using NoticeBoard.Core;
+using NoticeBoard.Core.Models.Domains;
 
-namespace WebAnnouncementsApp.Persistence
+namespace NoticeBoard.Persistence
 {
     public class ApplicationDbContext : IdentityDbContext, IApplicationDbContext
     {

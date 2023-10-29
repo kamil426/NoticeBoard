@@ -1,10 +1,10 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
-using WebAnnouncementsApp.Core.Models.Domains;
+using NoticeBoard.Core.Models.Domains;
 
 #nullable disable
 
-namespace WebAnnouncementsApp.Migrations
+namespace NoticeBoard.Migrations
 {
     public partial class Init : Migration
     {

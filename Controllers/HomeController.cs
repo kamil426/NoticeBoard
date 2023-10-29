@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
-using WebAnnouncementsApp.Core.ViewModels;
+using NoticeBoard.Core.ViewModels;
 
-namespace WebAnnouncementsApp.Controllers
+namespace NoticeBoard.Controllers
 {
     public class HomeController : Controller
     {

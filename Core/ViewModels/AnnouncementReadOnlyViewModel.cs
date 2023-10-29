@@ -1,6 +1,6 @@
-﻿using WebAnnouncementsApp.Core.Models.Domains;
+﻿using NoticeBoard.Core.Models.Domains;
 
-namespace WebAnnouncementsApp.Core.ViewModels
+namespace NoticeBoard.Core.ViewModels
 {
     public class AnnouncementReadOnlyViewModel
     {

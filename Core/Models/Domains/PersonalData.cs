@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Xml.Linq;
 using System.Collections.ObjectModel;
 
-namespace WebAnnouncementsApp.Core.Models.Domains
+namespace NoticeBoard.Core.Models.Domains
 {
     public class PersonalData
     {

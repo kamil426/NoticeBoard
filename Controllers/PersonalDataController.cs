@@ -1,16 +1,16 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.ObjectModel;
-using WebAnnouncementsApp.Core.Models.Domains;
-using WebAnnouncementsApp.Core.Repository;
-using WebAnnouncementsApp.Core.Service;
-using WebAnnouncementsApp.Core.ViewModels;
-using WebAnnouncementsApp.Migrations;
-using WebAnnouncementsApp.Persistence;
-using WebAnnouncementsApp.Persistence.Extensions;
-using WebAnnouncementsApp.Persistence.Repository;
+using NoticeBoard.Core.Models.Domains;
+using NoticeBoard.Core.Repository;
+using NoticeBoard.Core.Service;
+using NoticeBoard.Core.ViewModels;
+using NoticeBoard.Migrations;
+using NoticeBoard.Persistence;
+using NoticeBoard.Persistence.Extensions;
+using NoticeBoard.Persistence.Repository;
 
-namespace WebAnnouncementsApp.Controllers
+namespace NoticeBoard.Controllers
 {
     [Authorize]
     public class PersonalDataController : Controller
