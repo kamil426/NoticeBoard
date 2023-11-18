@@ -1,12 +1,12 @@
 ﻿using NoticeBoard.Core.Models.Domains;
+using NoticeBoard.Core.ViewModels;
 
 namespace NoticeBoard.Core.Service
 {
     public interface IPersonalDataService
     {
-        public PersonalData GetPersonalData(string userId);
-        public ICollection<PhoneNumber> GetPhoneNumbers(string userId);
         public void AddEditPersonalData(PersonalData personalData, List<string> newPhoneNumbers, List<string> phoneNumbersDoNotDelete);
-        public PersonalData GetPersonalData(int id);
+        public PersonalDataViewModel GetPersonalData(string userId);
+        public PersonalDataViewModel GetInvalidPersonalData(PersonalData personalData, List<string> newPhoneNumbers);
     }
 }

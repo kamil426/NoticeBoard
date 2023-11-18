@@ -1,17 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NoticeBoard.Core.Models.Domains;
-using NoticeBoard.Persistence.Repository;
-using NoticeBoard.Persistence;
 using NoticeBoard.Core.ViewModels;
 using NoticeBoard.Persistence.Extensions;
-using System.Collections.ObjectModel;
-using Microsoft.AspNetCore.Http;
-using System.Net;
 using NoticeBoard.Core.Models;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using NoticeBoard.Core.Service;
-using System.Net.Http;
 
 namespace NoticeBoard.Controllers
 {
@@ -19,34 +12,19 @@ namespace NoticeBoard.Controllers
     public class AnnouncementController : Controller
     {
         private IAnnouncementService _announcementService;
-        private ICategoryService _categoryService;
-        private IPersonalDataService _personalDataService;
         private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
-        private int defaultPageIndex = 1;
-        private int defaultPageSize = 30;
 
-        public AnnouncementController(IAnnouncementService announcementService, ICategoryService categoryService, IPersonalDataService personalDataService)
+        public AnnouncementController(IAnnouncementService announcementService)
         {
             _announcementService = announcementService;
-            _categoryService = categoryService;
-            _personalDataService = personalDataService;
         }
 
         public IActionResult Announcements()
         {
             var userId = User.GetUserId();
 
-            var announcements = _announcementService.GetAnnouncements(userId);
-            var pagina = new Pagina();
-            pagina.SetProperties(announcements, defaultPageIndex, defaultPageSize);
+            var vm = _announcementService.GetAnnouncements(userId);
 
-            var vm = new AnnouncementsViewModel()
-            {
-                Announcements = new List<Announcement>(_announcementService.GetAnnouncements(announcements, pagina.PageIndex, pagina.PageSize)),
-                Categories = new List<Category>(_categoryService.GetCategories()),
-                Filters = new Filters(),
-                Pagina = pagina
-            };
             return View(vm);
         }
 
@@ -55,39 +33,8 @@ namespace NoticeBoard.Controllers
         {
             var userId = User.GetUserId();
 
-            IEnumerable<Announcement> announcements;
-            Filters filters;
-            if (viewModel.Filters == null)
-            {
-                announcements = _announcementService.GetAnnouncements(userId);
-                filters = new Filters();
-            }
-            else
-            {
-                announcements = _announcementService.GetAnnouncements(
-                    userId, viewModel.Filters.Title, viewModel.Filters.FilterId, viewModel.Filters.CategoryId);
-                filters = new Filters()
-                {
-                    CategoryId = viewModel.Filters.CategoryId,
-                    FilterId = viewModel.Filters.FilterId,
-                    Title = viewModel.Filters.Title
-                };
-            }
-
-            Pagina pagina = new Pagina();
-            if (viewModel.Pagina == null)
-                pagina.SetProperties(announcements, defaultPageIndex, defaultPageSize);
-            else
-                pagina.SetProperties(announcements, viewModel.Pagina.PageIndex, viewModel.Pagina.PageSize);
-
-            var vm = new AnnouncementsViewModel()
-            {
-                Announcements = _announcementService.GetAnnouncements(
-                    announcements, pagina.PageIndex, pagina.PageSize),
-                Categories = _categoryService.GetCategories(),
-                Filters = filters,
-                Pagina = pagina
-            };
+            var vm = _announcementService.GetFilterAnnouncements(viewModel, userId);
+            
             return View("Announcements", vm);
         }
 
@@ -98,17 +45,7 @@ namespace NoticeBoard.Controllers
             var isPersonalDataCreated = _announcementService.CheckIsPersonalDataCreated(userId);
             if (isPersonalDataCreated)
             {
-                var vm = new AnnouncementViewModel();
-                vm.Categories = _categoryService.GetCategories();
-
-                if (id == 0)
-                    vm.Announcement = new Announcement()
-                    {
-                        ApplicationUserId = userId,
-                        TitleImageId = -1
-                    };
-                else
-                    vm.Announcement = _announcementService.GetAnnouncement(id, userId);
+                var vm = _announcementService.GetNewAnnouncement(userId, id);
 
                 return View(vm);
             }
@@ -127,35 +64,12 @@ namespace NoticeBoard.Controllers
 
             if (!ModelState.IsValid)
             {
-                if(announcement.Id != 0)
-                    announcement.Images = _announcementService.GetAnnouncement(announcement.Id, userId).Images;
-                AnnouncementViewModel vm;
-                if(newImages != null)
-                    vm = new AnnouncementViewModel()
-                    {
-                        Categories = _categoryService.GetCategories(),
-                        Announcement = announcement,
-                        NewImages = new List<string>(newImages),
-                    };
-                else
-                    vm = new AnnouncementViewModel()
-                    {
-                        Categories = _categoryService.GetCategories(),
-                        Announcement = announcement,
-                    };
+                var vm = _announcementService.GetInvalidAnnouncement(announcement, newImages);
 
                 return View(vm);
             }
-            announcement.TitleImageId = idTitleImage;
 
-            if (announcement.Id == 0)
-            {
-                var announcementId = _announcementService.AddAnnouncement(announcement);
-                if (newImages.Any())
-                    _announcementService.AddImages(newImages, announcementId);
-            }
-            else
-                _announcementService.EditAnnouncement(announcement, newImages, oldImagesDoNotDelete);
+            _announcementService.AddEditAnnouncement(announcement, newImages, oldImagesDoNotDelete, idTitleImage);
 
             return RedirectToAction("Announcements", "Announcement");
         }
@@ -163,11 +77,7 @@ namespace NoticeBoard.Controllers
         [AllowAnonymous]
         public IActionResult AnnouncementReadOnly(int id)
         {
-            var vm = new AnnouncementReadOnlyViewModel()
-            {
-                Announcement = _announcementService.GetAnnouncement(id),
-                PersonalData = _personalDataService.GetPersonalData(id)
-            };
+            var vm = _announcementService.GetAnnouncementReadOnly(id);
 
             return View(vm);
         }
@@ -175,17 +85,7 @@ namespace NoticeBoard.Controllers
         [AllowAnonymous]
         public IActionResult AllAnnouncements()
         {
-            var announcements = _announcementService.GetAllAnnouncements();
-            var pagina = new Pagina();
-            pagina.SetProperties(announcements, defaultPageIndex, defaultPageSize);
-
-            var vm = new AnnouncementsViewModel()
-            {
-                Announcements = _announcementService.GetAnnouncements(announcements, defaultPageIndex, defaultPageSize),
-                Categories = _categoryService.GetCategories(),
-                Filters = new Filters(),
-                Pagina = pagina
-            };
+            var vm = _announcementService.GetAllAnnouncements();
 
             return View(vm);
         }
@@ -194,39 +94,7 @@ namespace NoticeBoard.Controllers
         [HttpPost]
         public IActionResult FilterAllAnnouncements(AnnouncementsViewModel viewModel)
         {
-            IEnumerable<Announcement> announcements;
-            Filters filters;
-            if (viewModel.Filters == null)
-            {
-                announcements = _announcementService.GetAllAnnouncements();
-                filters = new Filters();
-            }
-            else
-            {
-                announcements = _announcementService.GetAllAnnouncements(
-                    viewModel.Filters.Title, viewModel.Filters.FilterId, viewModel.Filters.CategoryId);
-                filters = new Filters()
-                {
-                    CategoryId = viewModel.Filters.CategoryId,
-                    FilterId = viewModel.Filters.FilterId,
-                    Title = viewModel.Filters.Title
-                };
-            }
-
-            Pagina pagina = new Pagina();
-            if (viewModel.Pagina == null)
-                pagina.SetProperties(announcements, defaultPageIndex, defaultPageSize);
-            else
-                pagina.SetProperties(announcements, viewModel.Pagina.PageIndex, viewModel.Pagina.PageSize);
-
-            var vm = new AnnouncementsViewModel()
-            {
-                Announcements = _announcementService.GetAnnouncements(
-                    announcements, pagina.PageIndex, pagina.PageSize),
-                Categories = _categoryService.GetCategories(),
-                Filters = filters,
-                Pagina = pagina
-            };
+            var vm = _announcementService.FilterAllAnnouncements(viewModel);
 
             return View("AllAnnouncements", vm);
         }
@@ -250,9 +118,9 @@ namespace NoticeBoard.Controllers
         [HttpPost]
         public IActionResult DeleteAnnouncement(int id)
         {
+            var userId = User.GetUserId();
             try
             {
-                var userId = User.GetUserId();
                 _announcementService.DeleteAnnouncement(id, userId);
             }
             catch (Exception ex)

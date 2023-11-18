@@ -24,10 +24,7 @@ namespace NoticeBoard.Controllers
         {
             var userId = User.GetUserId();
 
-            var personalData = _personalDataService.GetPersonalData(userId);
-            personalData.PhoneNumbers = _personalDataService.GetPhoneNumbers(userId);
-
-            var vm = new PersonalDataViewModel() { PersonalData = personalData };
+            var vm = _personalDataService.GetPersonalData(userId);
 
             return View(vm);
         }
@@ -41,16 +38,7 @@ namespace NoticeBoard.Controllers
 
             if (!ModelState.IsValid)
             {
-                personalData.PhoneNumbers = _personalDataService.GetPhoneNumbers(userId);
-                PersonalDataViewModel vm;
-                if(newPhoneNumbers != null)
-                    vm = new PersonalDataViewModel()
-                    {
-                        PersonalData = personalData,
-                        NewPhoneNumbers = new List<string>(newPhoneNumbers)
-                    };
-                else 
-                    vm = new PersonalDataViewModel() { PersonalData = personalData };
+                var vm = _personalDataService.GetInvalidPersonalData(personalData, newPhoneNumbers);
 
                 return View("PersonalData", vm);
             }

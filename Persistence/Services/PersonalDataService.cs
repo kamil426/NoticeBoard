@@ -1,6 +1,7 @@
 ﻿using NoticeBoard.Core;
 using NoticeBoard.Core.Models.Domains;
 using NoticeBoard.Core.Service;
+using NoticeBoard.Core.ViewModels;
 
 namespace NoticeBoard.Persistence.Services
 {
@@ -18,19 +19,29 @@ namespace NoticeBoard.Persistence.Services
             _unitOfWork.Complete();
         }
 
-        public PersonalData GetPersonalData(string userId)
+        public PersonalDataViewModel GetPersonalData(string userId)
         {
-            return _unitOfWork.PersonalData.GetPersonalData(userId);
-        }
+            var personalData = _unitOfWork.PersonalData.GetPersonalData(userId);
+            personalData.PhoneNumbers = _unitOfWork.PersonalData.GetPhoneNumbers(userId);
 
-        public PersonalData GetPersonalData(int id)
-        {
-            return _unitOfWork.PersonalData.GetPersonalData(id);
-        }
+            var vm = new PersonalDataViewModel() { PersonalData = personalData };
 
-        public ICollection<PhoneNumber> GetPhoneNumbers(string userId)
+            return vm;
+        }
+        public PersonalDataViewModel GetInvalidPersonalData(PersonalData personalData, List<string> newPhoneNumbers)
         {
-            return _unitOfWork.PersonalData.GetPhoneNumbers(userId);
+            personalData.PhoneNumbers = _unitOfWork.PersonalData.GetPhoneNumbers(personalData.ApplicationUserId);
+            PersonalDataViewModel vm;
+            if (newPhoneNumbers != null)
+                vm = new PersonalDataViewModel()
+                {
+                    PersonalData = personalData,
+                    NewPhoneNumbers = new List<string>(newPhoneNumbers)
+                };
+            else
+                vm = new PersonalDataViewModel() { PersonalData = personalData };
+
+            return vm;
         }
     }
 }
