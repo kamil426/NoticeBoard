@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Mvc;
 using NoticeBoard.Core.Models;
 using Microsoft.AspNetCore.Diagnostics;
+using NoticeBoard.Middleware;
 
 namespace NoticeBoard
 {
@@ -48,19 +49,20 @@ namespace NoticeBoard
             //     .ExecuteAsync(statusCodeContext.HttpContext));
 
             // Configure the HTTP request pipeline.
+
             if (app.Environment.IsDevelopment())
             {
                 app.UseMigrationsEndPoint();
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
+                app.UseMiddleware<ExceptionHandlingMiddleware>();
+                //app.UseExceptionHandler("/Home/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
             app.UseHttpsRedirection();
-
             app.UseStaticFiles();
 
             app.UseRouting();
@@ -70,7 +72,7 @@ namespace NoticeBoard
 
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
+                pattern: "{controller=Announcement}/{action=AllAnnouncements}/{id?}");
             app.MapRazorPages();
 
             app.Run();

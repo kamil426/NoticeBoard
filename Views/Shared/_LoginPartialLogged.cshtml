@@ -19,7 +19,7 @@
                 <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Profil</a>
             </li>
             <li class="dropdown-item">
-                <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("AllAnnouncements", "Announcement", new { area = "" })">
                     <button type="submit" class="nav-link btn btn-link text-dark">Wyloguj się</button>
                 </form>
             </li>
